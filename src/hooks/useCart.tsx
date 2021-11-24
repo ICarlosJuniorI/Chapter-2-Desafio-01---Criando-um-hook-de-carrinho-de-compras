@@ -49,17 +49,18 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       if(productExists) {
         productExists.amount = amount; // Se o produto existir, a quantidade do produto será atualizada
       } else {
-        const product = await api.get(`/product/${productId}`); // Se o produto não existir, busca na api os dados que um produto tem e cria um novo produto com esses dados e quantidade 1
+        const product = await api.get(`/products/${productId}`); // Se o produto não existir, busca na api os dados que um produto tem e cria um novo produto com esses dados e quantidade 1
+        
         const newProduct = {
           ...product.data,
           amount: 1
         };
 
         updatedCart.push(newProduct); // Adiciona o novo produto no carrinho
-        setCart(updatedCart); // Atualiza o setCart para o carrinho atualizado
-
-        localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart)); // Atualiza o localStorage com o carrinho atualizado
       }
+
+      setCart(updatedCart); // Atualiza o setCart para o carrinho atualizado
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart)); // Atualiza o localStorage com o carrinho atualizado
     } catch {
       toast.error('Erro na adição do produto'); // Se o produto não existir da erro
     }
