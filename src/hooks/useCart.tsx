@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { api } from '../services/api';
 import { Product, Stock } from '../types';
@@ -32,6 +32,20 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
     return [];
   });
 
+  const prevCartRef = useRef<Product[]>();
+
+  useEffect(() => {
+    prevCartRef.current = cart;
+  });
+
+  const cartPreviousValue = prevCartRef.current ?? cart;
+
+  useEffect(() => {
+    if(cartPreviousValue !== cart) {
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(cart)); // Atualiza o localStorage com o carrinho atualizado
+    }
+  }, [cart, cartPreviousValue]);
+
   const addProduct = async (productId: number) => {
     try {
       const updatedCart = [...cart]; // Carrinho atualizado
@@ -60,7 +74,6 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       }
 
       setCart(updatedCart); // Atualiza o setCart para o carrinho atualizado
-      localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart)); // Atualiza o localStorage com o carrinho atualizado
     } catch {
       toast.error('Erro na adição do produto'); // Se o produto não existir da erro
     }
@@ -74,7 +87,6 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       if (productIndex >= 0) { // Se o produto existir...
         updatedCart.splice(productIndex, 1);
         setCart(updatedCart);
-        localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart)); // Atualiza o localStorage com o carrinho atualizado
       } else {
         throw Error();
       }
@@ -106,7 +118,6 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       if (productExists) { // Se o produto existir...
         productExists.amount = amount;
         setCart(updatedCart);
-        localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart)); // Atualiza o localStorage com o carrinho atualizado
       } else {
         throw Error();
       }
